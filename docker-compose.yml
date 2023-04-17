@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  vgm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kennytat/generate-subtitles:stable
+    container_name: stt
+    ports:
+      - 3000:3000
