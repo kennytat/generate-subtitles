@@ -1,82 +1,82 @@
-const {tr} = require('language-name-map/map');
+const { tr } = require("language-name-map/map");
 let l = console.log;
-const fs = require('fs-extra');
-const path = require('path');
-
+const fs = require("fs-extra");
+const path = require("path");
+const os = require("os");
+const tmpDir = path.join(os.tmpdir(), "vgm-stt");
 const mediaFileExtensions = [
   // Audio file extensions
-  '.aac',
-  '.ac3',
-  '.adts',
-  '.aif',
-  '.aiff',
-  '.aifc',
-  '.amr',
-  '.au',
-  '.awb',
-  '.dct',
-  '.dss',
-  '.dvf',
-  '.flac',
-  '.gsm',
-  '.m4a',
-  '.m4p',
-  '.mmf',
-  '.mp3',
-  '.mpc',
-  '.msv',
-  '.oga',
-  '.ogg',
-  '.opus',
-  '.ra',
-  '.ram',
-  '.raw',
-  '.sln',
-  '.tta',
-  '.vox',
-  '.wav',
-  '.wma',
+  ".aac",
+  ".ac3",
+  ".adts",
+  ".aif",
+  ".aiff",
+  ".aifc",
+  ".amr",
+  ".au",
+  ".awb",
+  ".dct",
+  ".dss",
+  ".dvf",
+  ".flac",
+  ".gsm",
+  ".m4a",
+  ".m4p",
+  ".mmf",
+  ".mp3",
+  ".mpc",
+  ".msv",
+  ".oga",
+  ".ogg",
+  ".opus",
+  ".ra",
+  ".ram",
+  ".raw",
+  ".sln",
+  ".tta",
+  ".vox",
+  ".wav",
+  ".wma",
 
   // Video file extensions
-  '.3g2',
-  '.3gp',
-  '.3gpp',
-  '.asf',
-  '.avi',
-  '.dat',
-  '.flv',
-  '.m2ts',
-  '.m4v',
-  '.mkv',
-  '.mod',
-  '.mov',
-  '.mp4',
-  '.mpe',
-  '.mpeg',
-  '.mpg',
-  '.mts',
-  '.ogv',
-  '.qt',
-  '.rm',
-  '.rmvb',
-  '.swf',
-  '.ts',
-  '.vob',
-  '.webm',
-  '.wmv'
+  ".3g2",
+  ".3gp",
+  ".3gpp",
+  ".asf",
+  ".avi",
+  ".dat",
+  ".flv",
+  ".m2ts",
+  ".m4v",
+  ".mkv",
+  ".mod",
+  ".mov",
+  ".mp4",
+  ".mpe",
+  ".mpeg",
+  ".mpg",
+  ".mts",
+  ".ogv",
+  ".qt",
+  ".rm",
+  ".rmvb",
+  ".swf",
+  ".ts",
+  ".vob",
+  ".webm",
+  ".wmv",
 ];
 
-
 // get argument from command line
-const shouldDeleteFiles = process.argv[2] === 'delete';
-const logDeleteOnly = process.argv[2] === 'toDelete';
-const logKeepOnly = process.argv[2] === 'toKeep';
+const shouldDeleteFiles = process.argv[2] === "delete";
+const logDeleteOnly = process.argv[2] === "toDelete";
+const logKeepOnly = process.argv[2] === "toKeep";
 
-function logInBlueColor (message) {
+function logInBlueColor(message) {
   console.log(`\x1b[34m${message}\x1b[0m`);
 }
 
-function logInRedColor (message) {
+function logInRedColor(message) {
   console.log(`\x1b[31m${message}\x1b[0m`);
 }
 
@@ -87,7 +87,7 @@ if (logKeepOnly) {
   logInBlueColor = function () {}; // disable logging
 }
 
-async function deleteAllMediaFiles ({ dirPath }) {
+async function deleteAllMediaFiles({ dirPath }) {
   // Get an array of all the files in the directory
   const files = await fs.promises.readdir(dirPath);
 
@@ -100,16 +100,15 @@ async function deleteAllMediaFiles ({ dirPath }) {
       try {
         await fs.promises.unlink(`${dirPath}/${file}`);
       } catch (error) {
-        l('error');
+        l("error");
         l(error);
         console.error(`Error deleting file: ${dirPath}/${file}`);
       }
-
     }
   }
 }
 
-async function findMediaFileInDirectory (directory) {
+async function findMediaFileInDirectory(directory) {
   const files = await fs.promises.readdir(directory);
   for (const file of files) {
     // get file extension using path module
@@ -118,19 +117,22 @@ async function findMediaFileInDirectory (directory) {
       return file;
     }
   }
-  return false
+  return false;
 }
-
 
 // delete files that are over 24h old script
 const deleteOldFiles = async function (shouldDelete = false) {
   try {
-
     let deletingFiles = shouldDelete || shouldDeleteFiles;
 
-    const processDirectory = process.cwd();
-    const transcriptionsDirectory = `${processDirectory}/transcriptions`;
-    const transcriptionsDirectoryContents = await fs.readdir(transcriptionsDirectory);
+    const processDirectory = tmpDir;
+    const transcriptionsDirectory = path.join(
+      processDirectory,
+      "transcriptions"
+    );
+    const transcriptionsDirectoryContents = await fs.readdir(
+      transcriptionsDirectory
+    );
 
     let totalFileSizeToDelete = 0;
 
@@ -169,36 +171,37 @@ const deleteOldFiles = async function (shouldDelete = false) {
 
         // TODO: only implement when it's ready
         if (!processingDataExists) {
-          l('deleting media files')
+          l("deleting media files");
           // await fs.unlink(mediaFilePath);
-          continue
+          continue;
         }
 
         let processingData, fileExistsButJsonError;
         try {
-          processingData = JSON.parse(await fs.readFile(processingDataPath, 'utf8'));
+          processingData = JSON.parse(
+            await fs.readFile(processingDataPath, "utf8")
+          );
         } catch (err) {
-
           // syntax error
-          fileExistsButJsonError = err.toString().includes('SyntaxError');
+          fileExistsButJsonError = err.toString().includes("SyntaxError");
 
           // delete the media if json error
           if (fileExistsButJsonError) {
-            l('deleting media files')
+            l("deleting media files");
             // delete the media files
             if (deletingFiles) {
               await deleteAllMediaFiles({ dirPath: directoryPath });
             }
-            continue
+            continue;
           }
         }
 
         // TODO: could have side effects until data saving lands
         if (!processingData) {
-          l('no processing data');
-          l('deleting media files')
+          l("no processing data");
+          l("deleting media files");
           // await deleteAllMediaFiles({ dirPath: directoryPath });
-          continue
+          continue;
         }
 
         // check if processing data keep media property is true
@@ -206,7 +209,7 @@ const deleteOldFiles = async function (shouldDelete = false) {
 
         // if keep media is true, keep going
         if (shouldKeepMedia) {
-          l('should keep');
+          l("should keep");
           continue;
         }
 
@@ -221,19 +224,20 @@ const deleteOldFiles = async function (shouldDelete = false) {
           const over24Hours = hoursDifference > 24;
 
           if (over24Hours) {
-            l('deleting media files')
+            l("deleting media files");
             if (deletingFiles && !shouldKeepMedia) {
               // delete mediaFilePath
               await fs.unlink(mediaFilePath);
             }
           } else {
-            l('not over 24 hours');
+            l("not over 24 hours");
           }
 
-        // there is an issue because the current processing_data.json file doesn't have a startedAt property
+          // there is an issue because the current processing_data.json file doesn't have a startedAt property
         } else {
-          l('deleting media files')
-          if (deletingFiles) await deleteAllMediaFiles({ dirPath: directoryPath });
+          l("deleting media files");
+          if (deletingFiles)
+            await deleteAllMediaFiles({ dirPath: directoryPath });
         }
       }
 
@@ -241,17 +245,17 @@ const deleteOldFiles = async function (shouldDelete = false) {
       // l(transcriptionsDirectoryContents);
     }
 
-    logInBlueColor('totalFileSizeToDelete');
+    logInBlueColor("totalFileSizeToDelete");
     logInBlueColor(totalFileSizeToDelete);
   } catch (err) {
-    l('err');
+    l("err");
     l(err);
     l(err.stack);
   }
-}
+};
 
 // deleteOldFiles();
 
 module.exports = {
-  deleteOldFiles
-}
+  deleteOldFiles,
+};

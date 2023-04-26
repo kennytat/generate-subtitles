@@ -1,39 +1,46 @@
 // see files
-const _ = require('lodash');
-const express = require('express');
+const _ = require("lodash");
+const express = require("express");
 const router = express.Router();
-const { getAllDirectories, getMatchingFiles } = require('../lib/files');
+const { getAllDirectories, getMatchingFiles } = require("../lib/files");
+const path = require("path");
+const os = require("os");
+const tmpDir = path.join(os.tmpdir(), "vgm-stt");
+const transcriptionDir = path.join(tmpDir, "transcriptions");
 
-router.get('/files', async function (req, res, next) {
+router.get("/files", async function (req, res, next) {
   try {
     const { password, language } = req.query;
 
-    const keepMedia = req.query.keepMedia === 'true';
+    const keepMedia = req.query.keepMedia === "true";
 
     if (password !== process.env.FILES_PASSWORD) {
-      res.redirect('/404')
+      res.redirect("/404");
     } else {
-      const dir = './transcriptions';
+      const dir = transcriptionDir;
 
       //
-      let files = await getAllDirectories('./transcriptions');
+      let files = await getAllDirectories(transcriptionDir);
 
       // log files length
-      l('files length');
+      l("files length");
       l(files.length);
       // l(files);
 
       // TODO: what other things to match against?
       files = await getMatchingFiles({ dir, files, language, keepMedia });
 
-      files = _.orderBy(files, (file) => new Date(file.processingData.finishedAT), 'desc');
+      files = _.orderBy(
+        files,
+        (file) => new Date(file.processingData.finishedAT),
+        "desc"
+      );
 
       // // log files length
       // l('files length');
       // l(files.length);
       //
-      // files = await sortByModifiedAtTime('./transcriptions');
-
+      // files = await sortByModifiedAtTime(transcriptionDir);
 
       // most recently effected files first (non-destructive, functional)
       // files = [].concat(files).reverse();
@@ -45,34 +52,32 @@ router.get('/files', async function (req, res, next) {
       // l('returning');
       // l(files);
 
-      return res.render('files', {
+      return res.render("files", {
         // list of file names
         files,
-        title: 'Files',
-      })
+        title: "Files",
+      });
     }
-
   } catch (err) {
-    l('err');
+    l("err");
     l(err);
   }
 });
 
 // see files
-router.get('/learnserbian', async function (req, res, next) {
+router.get("/learnserbian", async function (req, res, next) {
   try {
-
-    const dir = './transcriptions';
+    const dir = transcriptionDir;
     //
-    let files = await getAllDirectories('./transcriptions');
+    let files = await getAllDirectories(transcriptionDir);
 
-    const language = 'Serbian';
+    const language = "Serbian";
     const keepMedia = true;
 
     // TODO: what other things to match against?
     files = await getMatchingFiles({ dir, files, language, keepMedia });
 
-    l('files length');
+    l("files length");
     l(files.length);
     l(files);
 
@@ -81,28 +86,33 @@ router.get('/learnserbian', async function (req, res, next) {
     });
 
     // TODO: finishedAT is misspelled
-    files = _.orderBy(files, (file) => new Date(file.processingData.finishedAT), 'desc');
+    files = _.orderBy(
+      files,
+      (file) => new Date(file.processingData.finishedAT),
+      "desc"
+    );
 
-    return res.render('files', {
+    return res.render("files", {
       // list of file names
       files,
-      title: 'Files',
-    })
-
+      title: "Files",
+    });
   } catch (err) {
-    l('err');
+    l("err");
     l(err);
   }
 });
 
-router.get('/admin', async function (req, res, next) {
+router.get("/admin", async function (req, res, next) {
   try {
     const { password } = req.query;
 
-    if (process.env.NODE_ENV !== 'development' && password !== process.env.FILES_PASSWORD) {
-      res.redirect('/404')
+    if (
+      process.env.NODE_ENV !== "development" &&
+      password !== process.env.FILES_PASSWORD
+    ) {
+      res.redirect("/404");
     } else {
-
       // l('jobProcesses')
       // l(jobProcesses)
 
@@ -112,14 +122,14 @@ router.get('/admin', async function (req, res, next) {
         let value = jobProcesses[jobProcessNumber];
         if (!value) {
           cleanedUpJobProcessObject[jobProcessNumber] = {};
-          continue
+          continue;
         }
 
         let newItem = Object.assign({}, value);
         delete newItem.directorySafeFileNameWithoutExtension;
         delete newItem.directorySafeFileNameWithExtension;
-        delete newItem.fileSafeNameWithDateTimestamp
-        delete newItem.fileSafeNameWithDateTimestampAndExtension
+        delete newItem.fileSafeNameWithDateTimestamp;
+        delete newItem.fileSafeNameWithDateTimestampAndExtension;
         cleanedUpJobProcessObject[jobProcessNumber] = newItem;
       }
 
@@ -133,32 +143,30 @@ router.get('/admin', async function (req, res, next) {
 
       // cleanup new queue items
       for (const queueItem of global.newQueue) {
-
-        if (!queueItem) continue
+        if (!queueItem) continue;
 
         let newItem = Object.assign({}, queueItem);
 
         delete newItem.directorySafeFileNameWithoutExtension;
         delete newItem.directorySafeFileNameWithExtension;
-        delete newItem.fileSafeNameWithDateTimestamp
-        delete newItem.fileSafeNameWithDateTimestampAndExtension
+        delete newItem.fileSafeNameWithDateTimestamp;
+        delete newItem.fileSafeNameWithDateTimestampAndExtension;
         cleanedUpNewQueue.push(newItem);
       }
 
       // l('cleanedUpNewQueue')
       // l(cleanedUpNewQueue)
 
-      return res.render('admin', {
-        title: 'Admin',
+      return res.render("admin", {
+        title: "Admin",
         processes: cleanedUpJobProcessObject,
         newQueue: cleanedUpNewQueue || [],
         transcriptions: global.transcriptions,
         webSocketData: global.webSocketData,
-      })
+      });
     }
-
   } catch (err) {
-    l('err');
+    l("err");
     l(err);
   }
 });

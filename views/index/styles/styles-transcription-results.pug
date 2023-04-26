@@ -1,6 +1,54 @@
 style.
+  .transcript-main {
+    display: flex;
+    width: 100%;
+    min-height: 500px;
+  }
+  .queue-list {
+    width: 40%;
+    background-color: rgba(240, 240, 240, 1);
+    border-radius: 10px;
+    margin: 0 25px;
+  }
+  .queue-header {
+    background-color: rgba(230, 200, 180, 1);
+    padding: 10px;
+    margin: 0;
+    border-radius: 10px 10px 0 0;
+    color: rgb(30, 25, 40);
+    font-weight: bold;
+  }
+  
+  .result-list {
+    width: 40%;
+    background-color: rgba(240, 240, 240, 1);
+    border-radius: 10px;
+    margin: 0 25px;
+  }
+  .result-header {
+    background-color: rgba(230, 200, 180, 1);
+    padding: 10px;
+    margin: 0;
+    border-radius: 10px 10px 0 0;
+    color: rgb(30, 25, 40);
+    font-weight: bold;
+  }
+  .add-btn {
+    background-color: transparent;
+    color: rgb(140, 230, 215);
+    border-style: none;
+    font-size: 40px;
+    cursor: pointer;
+    height: 85px;
+    margin: 30px;
+  }
+
+  .add-btn:hover {
+    color: rgba(140, 230, 215, 0.7);
+  }
 
   .transcription-data {
+    width: 20%;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -9,28 +57,37 @@ style.
     color: #fff;
   }
 
+  .progress-status {
+    padding: 0 20px;
+  }
+
   .downloadLink, #refreshButton, #startNewUpload {
     color: white;
     font-size: 1.05rem;
-    text-align: center;
+    text-align: left;
   }
 
   #timeEstimator {
     font-size: 1.25rem;
-    text-align: center;
+    color: white;
+    text-align: left;
+  }
+  #progressStatusHeader {
+    text-align: left;
+    font-size: 1.5rem;
+    color: white;
+    margin: 20px 0 0 0;
   }
 
   #finishedData {
     text-align: left;
-    font-size: 1.125rem;
+    font-size: 1rem;
     color: white;
-    margin-top: -12px;
-    margin-left: -44px;
-    margin-bottom: 7px;
+    margin: 0;
   }
 
   #latestData, #processingData, #secondProcessingData, #refreshButton, #startNewUpload, .downloadLink {
-    display: none;
+  
   }
 
   #refreshButton, #startNewUpload {
@@ -88,7 +145,6 @@ style.
   }
 
   .progress {
-    display: none;
     margin: 0 auto;
     text-align: center;
   }
@@ -99,11 +155,16 @@ style.
 
   #latestData {
     margin: 0 auto;
+    color: white;
+    font-size: 1rem;
+    padding: 10px 0;
   }
 
   #processingData {
     margin: 14px auto;
     line-height: 17px;
+    color: white;
+    font-size: 1rem;
   }
 
   #secondProcessingData {

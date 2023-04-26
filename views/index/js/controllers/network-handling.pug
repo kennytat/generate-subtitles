@@ -25,8 +25,8 @@ script.
 
     $('#timeEstimator').show();
     $('#progress').show()
-    $('#header').html('Downloading..');
-    $('#form').hide()
+    $('#progressStatusHeader').html('Downloading..');
+    //- $('#form').hide()
     $('#startNewUpload').show();
 
 
@@ -43,9 +43,9 @@ script.
         max: 100,
         value: 0,
       });
-      $('.progress').hide();
+      //- $('.progress').hide();
     } else {
-      $('.progress').show();
+      //- $('.progress').show();
     }
 
     const estSecondsIsNan = isNaN(estSecondsRemaining);
@@ -76,7 +76,7 @@ script.
 
   const progressUpload = (evt, startDate, circleProgress, fileName) => {
     l(evt);
-    $('#form').hide();
+    //- $('#form').hide();
     $('#startNewUpload').show();
 
     const uploadedAmountInMB = _.round(evt.loaded / (1024 * 1024), 1);
@@ -93,7 +93,7 @@ script.
     l({timeElapsedInSeconds});
     l({estSecondsRemaining});
 
-    $('#progress').html(`${percentUpload}% uploaded`);
+    $('#progress').html(`${percentUpload}% done`);
     document.title = `${percentUpload}% Uploaded - ${fileName}`;
 
     circleProgress.attr({
@@ -106,9 +106,9 @@ script.
         max: 100,
         value: 0,
       });
-      $('.progress').hide();
+      //- $('.progress').hide();
     } else {
-      $('.progress').show();
+      //- $('.progress').show();
     }
 
     globalEstimatedSecondsRemaining = estSecondsRemaining;
@@ -139,9 +139,9 @@ script.
     l({response});
     $('#processingData').show();
     $('#latestData').show();
-    $('#progress').hide();
+    //- $('#progress').hide();
     $('#timeEstimator').hide();
-    $('#header').html('Processing..');
+    $('#progressStatusHeader').html('Processing..');
     circleProgress.attr({
       max: 100,
       value: 0,
@@ -234,11 +234,11 @@ script.
           value: percentDone,
         });
 
-        if (percentDone === 100) {
-          $('.progress').hide();
-        } else {
-          $('.progress').show();
-        }
+        //- if (percentDone === 100) {
+        //-   $('.progress').hide();
+        //- } else {
+        //-   $('.progress').show();
+        //- }
 
        globalTimeRemaining = timeRemaining;
 
@@ -278,7 +278,7 @@ script.
     document.title = `Starting processing..`;
     l('starting data');
     $('#latestData').html(data.text);
-    $('#processingData').css({'font-size': '1.6rem'});
+    //- $('#processingData').css({'font-size': '1.6rem'});
     $('#processingData').hide();
     $('#secondProcessingData').hide();
     myProcessingStarted = true;
@@ -320,14 +320,14 @@ script.
     if (window.decrementInterval) clearInterval(window.decrementInterval);
     $('#latestData').html(`Congratulations, you're done!`);
     $('#finishedData').html(data.detailsString);
-    $('#header').html('Transcription Completed');
+    $('#progressStatusHeader').html('Transcription Completed');
     $('#processingData').hide();
     // show refresh button
     $('#refreshButton').hide();
     $('#startNewUpload').hide();
     // redirect to the player page
     // 2 seconds to let the user see the completion message
-    setTimeout(() => window.location.href = `/player/${data.filename}`, 2000);
+    //- setTimeout(() => window.location.href = `/player/${data.filename}`, 2000);
   }
 
   const renderError = data => {

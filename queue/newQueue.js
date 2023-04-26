@@ -1,17 +1,17 @@
-const transcribeWrapped = require('../transcribe/transcribe-wrapped');
+const transcribeWrapped = require("../transcribe/transcribe-wrapped");
 // const { sendOutQueuePositionUpdate } = require('../lib/websockets');
-const WebSocket = require('ws');
+const WebSocket = require("ws");
 
 const l = console.log;
 
 const maxConcurrentJobs = Number(process.env.CONCURRENT_AMOUNT);
 
 // create set of numbers from x, such as 1,2,3
-function createNumberSet (x) {
-  return Array.from({length: x}, (_, i) => i + 1);
+function createNumberSet(x) {
+  return Array.from({ length: x }, (_, i) => i + 1);
 }
 
-l('maxConcurrentJobs');
+l("maxConcurrentJobs");
 l(maxConcurrentJobs);
 const numberSet = createNumberSet(maxConcurrentJobs);
 
@@ -24,44 +24,46 @@ for (const number of numberSet) {
 l(global.jobProcesses);
 
 // find process number of job to clear it when done
-function findProcessNumber (websocketNumber) {
+function findProcessNumber(websocketNumber) {
   for (let processNumber in global.jobProcesses) {
-
-    const hasOwnProperty = global.jobProcesses.hasOwnProperty(processNumber)
+    const hasOwnProperty = global.jobProcesses.hasOwnProperty(processNumber);
 
     if (hasOwnProperty) {
-
-      const matchesByWebsocket = global.jobProcesses[processNumber]?.websocketNumber === websocketNumber;
+      const matchesByWebsocket =
+        global.jobProcesses[processNumber]?.websocketNumber === websocketNumber;
       if (matchesByWebsocket) {
-        return processNumber
+        return processNumber;
       }
     }
   }
 
-  return false
+  return false;
 
   // TODO: throw an error here?
 }
-function sendOutQueuePositionUpdate () {
+function sendOutQueuePositionUpdate() {
   // loop through websockets and tell them one less is processing
-  for (let [, websocket] of global['webSocketData'].entries() ) {
+  for (let [, websocket] of global["webSocketData"].entries()) {
     // the actual websocket
     // l(websocket.websocketNumber)
     const websocketConnection = websocket.websocket;
     const websocketNumber = websocket.websocketNumber;
 
     if (websocketConnection.readyState === WebSocket.OPEN) {
-
-      const { queuePosition } = getQueueInformationByWebsocketNumber(websocketNumber);
+      const { queuePosition } =
+        getQueueInformationByWebsocketNumber(websocketNumber);
 
       // l('queuePosition');
       // l(queuePosition);
 
       if (queuePosition) {
-        websocketConnection.send(JSON.stringify({
-          message: 'queue',
-          placeInQueue: queuePosition
-        }), function () {});
+        websocketConnection.send(
+          JSON.stringify({
+            message: "queue",
+            placeInQueue: queuePosition,
+          }),
+          function () {}
+        );
       }
 
       // // TODO: send queue messages here
@@ -70,24 +72,22 @@ function sendOutQueuePositionUpdate () {
   }
 }
 
-
 // run transcribe job and remove from queue and run next queue item if available
-async function runJob (jobObject) {
+async function runJob(jobObject) {
   const { websocketNumber } = jobObject;
 
   // simulate job running
   try {
     await transcribeWrapped(jobObject);
 
-    l('job done');
-
+    l("job done");
   } catch (err) {
-    l('error from runjob');
+    l("error from runjob");
     l(err);
   }
 
   const processNumber = findProcessNumber(websocketNumber);
-  l('processNumber');
+  l("processNumber");
   l(processNumber);
 
   // run the next item from the queue
@@ -108,10 +108,10 @@ async function runJob (jobObject) {
 global.newQueue = [];
 
 // add job to process if available otherwise add to queue
-function addToJobProcessOrQueue (jobObject) {
+function addToJobProcessOrQueue(jobObject) {
   const { websocketNumber, skipToFront } = jobObject;
 
-  l('skipToFront');
+  l("skipToFront");
   l(skipToFront);
 
   // put job on process if there is an available process
@@ -123,7 +123,7 @@ function addToJobProcessOrQueue (jobObject) {
 
       global.jobProcesses[processNumber] = jobObject;
       runJob(jobObject);
-      return
+      return;
     }
   }
 
@@ -132,7 +132,9 @@ function addToJobProcessOrQueue (jobObject) {
   // push to newQueue if all processes are busy
   if (skipToFront) {
     // last skip to front item
-    const lastItem = global.newQueue.filter(queueItem => queueItem.skipToFront === true).slice(-1)[0];
+    const lastItem = global.newQueue
+      .filter((queueItem) => queueItem.skipToFront === true)
+      .slice(-1)[0];
 
     // insert after latest skipToFront
     if (lastItem) {
@@ -144,7 +146,6 @@ function addToJobProcessOrQueue (jobObject) {
       // insert at beginning
       global.newQueue.unshift(jobObject);
     }
-
   } else {
     // insert at end
     global.newQueue.push(jobObject);
@@ -154,7 +155,7 @@ function addToJobProcessOrQueue (jobObject) {
 }
 
 // get amount of running jobs (used to calculate queue position)
-function amountOfRunningJobs () {
+function amountOfRunningJobs() {
   let amount = 0;
   for (let processNumber in global.jobProcesses) {
     const propValue = global.jobProcesses[processNumber];
@@ -168,25 +169,25 @@ function amountOfRunningJobs () {
 }
 
 // get position in queue based on websocketNumber
-function getQueueInformationByWebsocketNumber (websocketNumber) {
+function getQueueInformationByWebsocketNumber(websocketNumber) {
   for (const [index, queueItem] of global.newQueue.entries()) {
     if (queueItem.websocketNumber === websocketNumber) {
       return {
         queuePosition: index + 1, // 1
         queueLength: global.newQueue.length, // 4
         aheadOfYou: index,
-        behindYou: global.newQueue.length - index - 1
-      }
+        behindYou: global.newQueue.length - index - 1,
+      };
     }
   }
-  return false
+  return false;
 }
 
 module.exports = {
   addToJobProcessOrQueue,
   amountOfRunningJobs,
-  getQueueInformationByWebsocketNumber
-}
+  getQueueInformationByWebsocketNumber,
+};
 
 // function main(){
 //   addToJobProcessOrQueue({websocketNumber: 0, skipToFront: false});
@@ -273,7 +274,6 @@ module.exports = {
 //     l('added to queue');
 //   }
 // }
-
 
 // async function doNextQueueItem(){
 //   if(queue.length > 0){

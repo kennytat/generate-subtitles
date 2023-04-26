@@ -23,7 +23,7 @@ script.
   let inTheQueue;
   let receivedPlaceInQueue, myProcessingStarted = false;
   let placeInQueue = 0;
-  const oneHourInSeconds = 60 * 60;
+  const threeHourInSeconds = 60 * 60 * 3;
 
   // setup endpoints to hit
   const ipAndPort = location.host;
@@ -127,8 +127,20 @@ script.
     selectionContent && handleSelectionShortcuts(evt);
   });
 
-  $('#form').on('submit', submitForm);
+  $('.add-btn').on('click', evt => {
+    $('.upload-form').removeClass('hidden');
+    $('#form').show();
+  });
 
+  $('.backdrop').on('click', evt => {
+    $('.upload-form').addClass('hidden');
+  });
+
+  $('.close-btn').on('click', evt => {
+    $('.upload-form').addClass('hidden');
+  });
+
+  $('#form').on('submit', submitForm);
   // freezes everything up
   // $('#file').on('change', async () => {
   //   videoDuration = await getVideoDuration($('#file').prop('files')[0]);
@@ -136,6 +148,8 @@ script.
   // });
 
   async function submitForm(evt) {
+    $('.upload-form').addClass('hidden');
+    $('.main').removeClass('hidden');
     evt.preventDefault();
 
     const outstandingJobsResponse = await fetch(checkAmountOfOutstandingJobsUrl);
@@ -182,6 +196,7 @@ script.
     formData.append('shouldTranslate', translateIsChecked);
     formData.append('websocketNumber', randomNumber);
 
+    console.log("onFormSubmit::", formData)
     /* SUBMIT ERRORS */
     if(!passedFile && !downloadLink) return errorsMap['no-file']();
 
@@ -216,7 +231,7 @@ script.
       }
 
       // TODO: pass time limit from backend
-      if (videoDurationInSeconds && videoDurationInSeconds > oneHourInSeconds) {
+      if (videoDurationInSeconds && videoDurationInSeconds > threeHourInSeconds) {
         $('#upload-button').html('Upload').removeClass('no-pointer-events');
         videoDurationInSeconds = 0;
         return errorsMap['too-long-video'](videoDurationInSeconds);
@@ -286,7 +301,7 @@ script.
     // hit the backend
     ajax.open('POST', uploadUrl);
     ajax.send(formData);
-    $('#form').hide()
+    //- $('#form').hide()
     if(downloadLink) downloadStarted = true;
   }
 
@@ -302,6 +317,7 @@ script.
   /** handling websocket messages **/
   websocketConnection.onmessage = evt => {
     const data = JSON.parse(evt.data);
+    console.log("websocketConnection::", data);
     const {message, status} = data;
     l({data});
 

@@ -82,7 +82,7 @@ docker build -t kennytat/generate-subtitles:stable .
 RUN
 docker-compose up
 OR
-docker run --rm --name generate-subtitles --gpus all -p 3000:3000 kennytat/generate-subtitles:stable
+docker run --rm --name generate-subtitles --gpus all -p 3000:3000 -v ./model:/root/.cache/whisper kennytat/generate-subtitles:stable
 ```
 
 ## WSL2

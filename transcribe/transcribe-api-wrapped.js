@@ -1,16 +1,20 @@
-const which = require('which');
-const spawn = require('child_process').spawn;
-const { handleStdErr, handleStdOut, handleProcessClose } = require('../lib/transcribing')
-
+const which = require("which");
+const spawn = require("child_process").spawn;
 const {
-  buildArguments,
-} = require('./transcribing');
+  handleStdErr,
+  handleStdOut,
+  handleProcessClose,
+} = require("../lib/transcribing");
+const path = require("path");
+const os = require("os");
+const tmpDir = path.join(os.tmpdir(), "vgm-stt");
+const { buildArguments } = require("./transcribing");
 
 l = console.log;
 
-const whisperPath = which.sync('whisper')
+const whisperPath = which.sync("whisper");
 
-async function transcribe ({
+async function transcribe({
   language,
   model,
   originalFileExtension,
@@ -22,13 +26,18 @@ async function transcribe ({
   return new Promise(async (resolve, reject) => {
     try {
       // where app.js is running from
-      const processDir = process.cwd()
+      const processDir = tmpDir;
 
       // original upload file path
-      const originalUpload = `${processDir}/uploads/${uploadFileName}`;
+      const originalUpload = path.join(processDir, "uploads", uploadFileName);
 
       //
-      const processingDataPath = `${processDir}/transcriptions/${numberToUse}/processing_data.json`
+      const processingDataPath = path.join(
+        processDir,
+        "transcriptions",
+        numberToUse,
+        "processing_data.json"
+      );
 
       // save date when starting to see how long it's taking
       const startingDate = new Date();
@@ -39,9 +48,9 @@ async function transcribe ({
         language, //
         model,
         numberToUse,
-      })
+      });
 
-      l('whisperArguments');
+      l("whisperArguments");
       l(whisperArguments);
 
       // start whisper process
@@ -49,26 +58,28 @@ async function transcribe ({
 
       // TODO: implement foundLanguagae here
       // let foundLanguage;
-      whisperProcess.stdout.on('data',  (data) => l(`STDOUT: ${data}`));
+      whisperProcess.stdout.on("data", (data) => l(`STDOUT: ${data}`));
 
       /** console output from stderr **/ // (progress comes through stderr for some reason)
-      whisperProcess.stderr.on('data', handleStdErr({ model, language, originalFileName, processingDataPath }));
+      whisperProcess.stderr.on(
+        "data",
+        handleStdErr({ model, language, originalFileName, processingDataPath })
+      );
 
       /** whisper responds with 0 or 1 process code **/
-      whisperProcess.on('close', handleProcessClose({ processingDataPath, originalUpload, numberToUse }))
-
-
+      whisperProcess.on(
+        "close",
+        handleProcessClose({ processingDataPath, originalUpload, numberToUse })
+      );
     } catch (err) {
-      l('error from transcribe')
+      l("error from transcribe");
       l(err);
 
       reject(err);
 
-      throw new Error(err)
+      throw new Error(err);
     }
-
   });
-
 }
 
 module.exports = transcribe;

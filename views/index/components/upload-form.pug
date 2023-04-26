@@ -1,5 +1,10 @@
 style.
-
+  .form {
+    height: max-content;
+    min-width: 450px;
+    min-height: 480px;
+    z-index: 100;
+  }
   .disabled-paste-button, .paste-button {
     display: inline-block;
     margin: 0;
@@ -21,6 +26,28 @@ style.
     /*pointer-events: ;*/
   }
 
+  .backdrop {
+    height: 100%;
+    width: 100%;
+    background-color: rgba(20,20,20, 0.5);
+    position: absolute;
+    top: 0;
+    z-index: 90;
+  }
+  .close-btn {
+    background-color: transparent;
+    color: black;
+    border-style: none;
+    font-size: 22px;
+    position: absolute;
+    margin: -23px 0 0px 385px;
+    cursor: pointer;
+  }
+
+  .close-btn:hover {
+    color: rgba(0, 0, 0, 0.7);
+  }
+
   .file-turned-off {
     opacity: 0.5;
     pointer-events: none;
@@ -31,12 +58,13 @@ style.
   }
 
 
-
+.backdrop
 form.form#form
-  p(style="margin:0;margin-bottom:6px;") File Limits: Video Or Audio, Max 300 MB, Max 1 Hour Duration
+  button.close-btn(type='button')
+    i.fa-solid.fa-xmark
   .group
     label(for='file') Select (or drop) file
-    input#file(type='file')
+    input#file(type='file' multiple="multiple")
   if !ytdlp
     .group
       label#disable-download-link(for='downloadLink') Enter a link for automatic download
@@ -80,7 +108,6 @@ form.form#form
 
   script.
     let l = console.log;
-
     let pasteButtonTurnedOff = false;
 
     $(document).on('click', function (e) {

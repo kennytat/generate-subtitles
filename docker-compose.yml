@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     image: kennytat/generate-subtitles:stable
+    volumes:
+      - ./model:/root/.cache/whisper
     container_name: stt
     ports:
       - 3000:3000
