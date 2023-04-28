@@ -74,12 +74,11 @@ function sendOutQueuePositionUpdate() {
 
 // run transcribe job and remove from queue and run next queue item if available
 async function runJob(jobObject) {
-  const { websocketNumber } = jobObject;
+  const { websocketConnection, websocketNumber } = jobObject;
 
   // simulate job running
   try {
     await transcribeWrapped(jobObject);
-
     l("job done");
   } catch (err) {
     l("error from runjob");
@@ -90,7 +89,15 @@ async function runJob(jobObject) {
   l("processNumber");
   l(processNumber);
 
-  // run the next item from the queue
+  // run the next item from the queue, send message to update frontend
+  if (global.queueItems.length) {
+    global.queueItems.shift();
+    websocketConnection.send(
+      JSON.stringify({
+        message: "updateQueue",
+      })
+    );
+  }
   if (global.newQueue.length) {
     const nextQueueItem = global.newQueue.shift();
 

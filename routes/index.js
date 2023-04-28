@@ -93,7 +93,13 @@ router.get("/queue", function (req, res, next) {
 
   const queueData = global.queueItems;
 
-  const reversedQueueData = queueData.slice().reverse();
+  const reversedQueueData = queueData
+    .slice()
+    .reverse()
+    .map((item) => ({
+      ...item,
+      startedAt: new Date(item.startedAt),
+    }));
 
   res.render("queue", {
     title: "Queue",

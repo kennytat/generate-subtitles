@@ -255,7 +255,7 @@ router.post("/file", upload.single("file"), async function (req, res, next) {
       uploadDurationInSeconds,
       shouldTranslate,
       fileSizeInMB,
-      startedAt: new Date(),
+      startedAt: new Date().getTime(),
       status: "pending",
       websocketNumber,
       ...(user && { user }),
@@ -282,7 +282,6 @@ router.post("/file", upload.single("file"), async function (req, res, next) {
       skipToFront: skipToFront === "true",
       totalOutstanding,
       ip,
-
       // websocket/queue
       websocketConnection,
       websocketNumber,
@@ -321,7 +320,7 @@ router.get("/checkingOutstandingProcesses", async function (req, res, next) {
 
   l("outstandingJobsAmount");
   l(outstandingJobsAmount);
-
+  // If queue larger than 3, print error
   if (outstandingJobsAmount >= 3) {
     res.send("tooMany");
   } else {

@@ -64,7 +64,7 @@ form.form#form
     i.fa-solid.fa-xmark
   .group
     label(for='file') Select (or drop) file
-    input#file(type='file' multiple="multiple")
+    input#file(type='file' name="files[]" multiple="multiple")
   if !ytdlp
     .group
       label#disable-download-link(for='downloadLink') Enter a link for automatic download
@@ -104,6 +104,7 @@ form.form#form
     label#translateLabel(for='translate') Translate to different languages
     input#translate(type='checkbox' name='translate')
   button#upload-button.submit-btn(type='submit') Upload
+  
 
 
   script.
@@ -178,8 +179,12 @@ form.form#form
 
         $('#downloadLink').attr('placeholder', 'You have selected a file to upload');
         pasteButtonTurnedOff = true;
-
-        l('file added')
+        let inputFiles = document.getElementById("file");
+        for (const file of inputFiles.files) {
+          l('file added:: ', file)
+          l($('#file').prop('files'))
+        }
+        
       // a file that was there was removed
       } else {
         $('#downloadLink').removeClass('file-turned-off');

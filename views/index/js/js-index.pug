@@ -68,7 +68,7 @@ script.
     // I did this by accident the first time but I like it so I kept it
     circleProgress = new CircleProgress('.progress', {
       max: 100,
-      value: 100,
+      value: 0,
       textFormat: 'vertical',
     });
 
@@ -140,28 +140,36 @@ script.
     $('.upload-form').addClass('hidden');
   });
 
-  $('#form').on('submit', submitForm);
+  $('#form').on('submit', async evt => {
+    evt.preventDefault();
+    $('.upload-form').addClass('hidden');
+    let inputFiles = document.getElementById("file");
+    for await (const file of inputFiles.files) {
+      // Perform action on one file
+      processFile(file)
+    }
+  });
+
   // freezes everything up
   // $('#file').on('change', async () => {
   //   videoDuration = await getVideoDuration($('#file').prop('files')[0]);
   //   l({videoDuration});
   // });
 
-  async function submitForm(evt) {
-    $('.upload-form').addClass('hidden');
-    $('.main').removeClass('hidden');
-    evt.preventDefault();
+  async function processFile(inputFile) {
+    l("processFile::", inputFile);
+    
+    //- Return error if queue job larger than limit
+    //- const outstandingJobsResponse = await fetch(checkAmountOfOutstandingJobsUrl);
+    //- const outstandingJobsText = await outstandingJobsResponse.text();
 
-    const outstandingJobsResponse = await fetch(checkAmountOfOutstandingJobsUrl);
-    const outstandingJobsText = await outstandingJobsResponse.text();
-
-    if(outstandingJobsText === 'tooMany') {
-      return errorsMap['too-many-outstanding']()
-    }
+    //- if(outstandingJobsText === 'tooMany') {
+    //-   return errorsMap['too-many-outstanding']()
+    //- }
 
     /* DATA */
     const formData = new FormData();
-    const [passedFile] = $('#file').prop('files');
+    const passedFile = inputFile;
     const fileName = passedFile?.name;
     let language = $('#language').data('value');
     const model = document.querySelector('#model').dataset.value;
@@ -240,7 +248,7 @@ script.
 
     // Display the key/value pairs
     for (const pair of formData.entries()) {
-      console.log(pair[0] + ': ' + pair[1]);
+      console.log("fromData:: ", pair[0] + ': ' + pair[1]);
     }
 
     $('.amountsHeader').hide();
@@ -297,7 +305,7 @@ script.
 
     // TODO: implement these
     // ajax.addEventListener("abort", abortHandler, false);
-
+    l("item sent to backend::", uploadUrl, formData);
     // hit the backend
     ajax.open('POST', uploadUrl);
     ajax.send(formData);
@@ -361,11 +369,11 @@ script.
     //- updates about translations on backend
     isTranslationUpdate && renderTranslationUpdate(data);
 
-    /** WHEN WEBSOCKET SAYS COMPLETED **/
+    /** WHEN WEBSOCKET SAYS COMPLETED - turnoff for keeping connection alive **/
     if (transcriptionHasCompleted) {
       uploadFinished = true;
       renderCompletionFeedback({data});
-      websocketConnection.close();
+      //- websocketConnection.close();
     }
 
     isErrorMessage && renderError(data);

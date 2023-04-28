@@ -1,6 +1,7 @@
 const which = require("which");
 const spawn = require("child_process").spawn;
 const fs = require("fs-extra");
+var rimraf = require("rimraf");
 const ffprobe = require("ffprobe");
 const WebSocket = require("ws");
 const path = require("path");
@@ -85,21 +86,21 @@ async function transcribe({
     "transcribe args::",
     uploadedFilePath,
     language,
-    model,
-    websocketConnection,
-    websocketNumber,
-    directorySafeFileNameWithoutExtension,
-    directorySafeFileNameWithExtension,
-    originalFileNameWithExtension,
-    fileSafeNameWithDateTimestamp,
-    fileSafeNameWithDateTimestampAndExtension,
-    uploadGeneratedFilename,
-    shouldTranslate,
-    uploadDurationInSeconds,
-    fileSizeInMB,
-    user,
-    downloadLink,
-    processNumber
+    model
+    // websocketConnection,
+    // websocketNumber,
+    // directorySafeFileNameWithoutExtension,
+    // directorySafeFileNameWithExtension,
+    // originalFileNameWithExtension,
+    // fileSafeNameWithDateTimestamp,
+    // fileSafeNameWithDateTimestampAndExtension,
+    // uploadGeneratedFilename,
+    // shouldTranslate,
+    // uploadDurationInSeconds,
+    // fileSizeInMB,
+    // user,
+    // downloadLink,
+    // processNumber
   );
   return new Promise(async (resolve, reject) => {
     function webSocketIsStillAlive(webSocketNumber) {
@@ -577,6 +578,8 @@ async function transcribe({
             );
             await fs.rename(originalContainingDir, renamedDirectory);
             await createZipArchive(renamedDirectory, `${renamedDirectory}.zip`);
+            // remove output directory
+            rimraf.sync(renamedDirectory);
             function matchByWebsocketNumber(item) {
               return item.websocketNumber === websocketNumber;
             }
@@ -612,7 +615,7 @@ async function transcribe({
             });
             websocketConnection.terminate();
           }
-          l("err here");
+          l("Whisper ON close:: error here");
           l(err.stack);
           l(err);
           throw err;
@@ -620,7 +623,7 @@ async function transcribe({
       });
       // TODO: this doesn't seem to actually work (errors never seem to land here)
     } catch (err) {
-      l("error from transcribe-wrapped");
+      l("Error:: from transcribe-wrapped");
       l(err);
 
       updateQueueItemStatus(websocketNumber, "errored");
