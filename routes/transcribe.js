@@ -69,7 +69,7 @@ router.post("/file", upload.single("file"), async function (req, res, next) {
     const websocketNumber = req.body.websocketNumber;
     const shouldTranslate = req.body.shouldTranslate === "true";
     const downloadLink = req.body.downloadLink;
-    const { user, skipToFront, uploadTimeStarted } = req.body;
+    const { fileID, user, skipToFront, uploadTimeStarted } = req.body;
 
     const passedFile = req.file;
     let downloadedFile = false;
@@ -114,6 +114,7 @@ router.post("/file", upload.single("file"), async function (req, res, next) {
 
     let originalFileNameWithExtension,
       uploadedFilePath,
+      uploadedFileID,
       uploadGeneratedFilename;
     if (passedFile) {
       originalFileNameWithExtension = Buffer.from(
@@ -122,13 +123,15 @@ router.post("/file", upload.single("file"), async function (req, res, next) {
       ).toString("utf8");
       uploadedFilePath = req.file.path;
       uploadGeneratedFilename = req.file.filename;
-      l("uploadedFilePath");
-      l(uploadedFilePath);
+      l("uploadedFilePath::", uploadedFilePath);
+      uploadedFileID = fileID;
+      l("uploadedFileID::", uploadedFileID);
     } else if (downloadLink) {
       websocketConnection.send(
         JSON.stringify({
           message: "downloadInfo",
           fileName: downloadLink,
+          fileId: uploadedFileID,
           percentDownloaded: 0,
         }),
         function () {}
@@ -251,6 +254,7 @@ router.post("/file", upload.single("file"), async function (req, res, next) {
       model,
       language,
       filename: originalFileNameWithExtension,
+      uploadedFileID,
       ip,
       uploadDurationInSeconds,
       shouldTranslate,
@@ -274,6 +278,7 @@ router.post("/file", upload.single("file"), async function (req, res, next) {
       fileSafeNameWithDateTimestamp,
       fileSafeNameWithDateTimestampAndExtension,
       uploadGeneratedFilename,
+      uploadedFileID,
       shouldTranslate,
       uploadDurationInSeconds,
       fileSizeInMB,

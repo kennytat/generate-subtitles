@@ -39,8 +39,8 @@ RUN mkdir -p /content/stt
 COPY . /content/stt
 RUN npm install --prefix /content/stt
 
-ENV PORT=3000
-EXPOSE 3000
+ENV PORT=3100
+EXPOSE 3100
 
 ENTRYPOINT [ "npm" ]
 

@@ -7,6 +7,7 @@ include controllers/network-handling
 script.
   l = console.log;
   ce = console.error;
+  let queueList = [];
 
   let ytdlp = !{ytdlp || false};
   const user = '#{user}';
@@ -46,6 +47,7 @@ script.
   const checkAmountOfOutstandingJobsUrl = `${httpPrepend}://${ipAndPort}/checkingOutstandingProcesses`;
 
   // passed from server
+  const title = `!{title}`;
   const isFreeSubtitles = !{isFreeSubtitles};
   const uploadLimitInMB = !{uploadLimitInMB};
   const nodeEnvironment = `!{nodeEnv}`;
@@ -62,6 +64,15 @@ script.
   const previousLanguage = localStorage.getItem('language');
   const previousLanguageName = localStorage.getItem('languageName');
   const previousShouldTranslate = localStorage.getItem('shouldTranslate');
+  const create_UUID = () => {
+    var dt = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (dt + Math.random()*16)%16 | 0;
+        dt = Math.floor(dt/16);
+        return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+  }
 
   $(document).ready(() => {
     // start progress at 100 and rewind it when starting
@@ -144,9 +155,19 @@ script.
     evt.preventDefault();
     $('.upload-form').addClass('hidden');
     let inputFiles = document.getElementById("file");
-    for await (const file of inputFiles.files) {
+    let processFiles = [];
+    for await (const inputFile of inputFiles.files) {
+      const item = {
+        id: create_UUID(),
+        file: inputFile
+      }
+      processFiles.push(item);
+      $('.queue-content').append(`<li id="${item.id}" style="margin: 0 20px;padding: 5px 10px">${item.file.name}</li>`);
+    }
+    queueList = queueList.concat(processFiles);
+    for await (const item of processFiles) {
       // Perform action on one file
-      processFile(file)
+      processFile(item.file, item.id)
     }
   });
 
@@ -156,7 +177,7 @@ script.
   //   l({videoDuration});
   // });
 
-  async function processFile(inputFile) {
+  async function processFile(inputFile, fileID) {
     l("processFile::", inputFile);
     
     //- Return error if queue job larger than limit
@@ -203,6 +224,7 @@ script.
     formData.append('model', model);
     formData.append('shouldTranslate', translateIsChecked);
     formData.append('websocketNumber', randomNumber);
+    formData.append('fileID', fileID);
 
     console.log("onFormSubmit::", formData)
     /* SUBMIT ERRORS */
@@ -255,7 +277,7 @@ script.
 
     // warn user about leaving if they're still processing
     window.addEventListener('beforeunload', (event) => {
-      if(!uploadFinished && !processFailed){
+      if(!uploadFinished && !processFailed && queueList.length > 0) {
         // per modern browsers text doesnt actually show up just a generic message
         event.returnValue = `You have an ongoing transcription and if you leave you have to start over. Are you sure you want to leave?`;
       }
@@ -326,7 +348,7 @@ script.
   websocketConnection.onmessage = evt => {
     const data = JSON.parse(evt.data);
     console.log("websocketConnection::", data);
-    const {message, status} = data;
+    const {message, status, id, filename} = data;
     l({data});
 
     // processing data is received constantly from backend
@@ -371,8 +393,19 @@ script.
 
     /** WHEN WEBSOCKET SAYS COMPLETED - turnoff for keeping connection alive **/
     if (transcriptionHasCompleted) {
-      uploadFinished = true;
+      //- l("completeData::",{data});
+      //- $('.result-content').html('');
+      const split = filename.split('/');
+      const name = split[split.length - 1];
+      queueList = queueList.filter(item => item.id !== id);
+      //- l("queueList::", queueList.length, id);
+      $(`#${id}`).remove();
+      $('.result-content').append(`<li style="margin: 0 20px;padding: 5px 10px"><a href="${filename}" download>${name}</a></li>`);
+
       renderCompletionFeedback({data});
+      if (queueList.length > 0) {
+        uploadFinished = true;      
+      }
       //- websocketConnection.close();
     }
 

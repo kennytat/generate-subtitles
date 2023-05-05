@@ -74,6 +74,7 @@ async function transcribe({
   fileSafeNameWithDateTimestamp,
   fileSafeNameWithDateTimestampAndExtension,
   uploadGeneratedFilename,
+  uploadedFileID,
   shouldTranslate,
   uploadDurationInSeconds,
   fileSizeInMB,
@@ -86,7 +87,7 @@ async function transcribe({
     "transcribe args::",
     uploadedFilePath,
     language,
-    model
+    model,
     // websocketConnection,
     // websocketNumber,
     // directorySafeFileNameWithoutExtension,
@@ -101,6 +102,7 @@ async function transcribe({
     // user,
     // downloadLink,
     // processNumber
+    uploadedFileID
   );
   return new Promise(async (resolve, reject) => {
     function webSocketIsStillAlive(webSocketNumber) {
@@ -509,10 +511,14 @@ async function transcribe({
             websocketConnection.send(
               JSON.stringify({
                 status: "Completed",
-                urlSrt: transcribedSrtFilePath,
-                urlVtt: transcribedVttFilePath,
-                urlTxt: transcribedTxtFilePath,
-                filename: fileSafeNameWithDateTimestamp,
+                id: uploadedFileID,
+                // urlSrt: transcribedSrtFilePath,
+                // urlVtt: transcribedVttFilePath,
+                // urlTxt: transcribedTxtFilePath,
+                filename: `${path.join(
+                  transcriptionDir.replace(tmpDir, ""),
+                  fileSafeNameWithDateTimestamp
+                )}.zip`,
                 detailsString: outputText,
               }),
               function () {}

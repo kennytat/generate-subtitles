@@ -82,7 +82,7 @@ docker build -t kennytat/generate-subtitles:stable .
 RUN
 docker-compose up
 OR
-docker run --rm --name generate-subtitles --gpus all -p 3000:3000 -v ./model:/root/.cache/whisper kennytat/generate-subtitles:stable
+docker run --rm --name generate-subtitles --gpus all -p 3100:3100 -v ./model:/root/.cache/whisper kennytat/generate-subtitles:stable
 ```
 
 ## WSL2
@@ -94,5 +94,5 @@ run.bat
 
 Install from WSL terminal:
 setup.sh
-npm run start --prefix ~/generate-subtitles & sleep 3 && sensible-browser http://localhost:3000
+npm run start --prefix ~/generate-subtitles & sleep 3 && sensible-browser http://localhost:3100
 ```

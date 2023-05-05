@@ -1,29 +1,30 @@
 //DISPLAY DIFFERENT DATA
 .transcript-main
-	.queue-list
-		p.queue-header Queue List
-	.transcription-data
-		button.add-btn(type='button')
-			i.fa-solid.fa-plus
-		.progress
-		p#progress
-	.result-list
-		p.result-header Output List
-
+  .queue-list
+    p.queue-header Queue List
+    ol.queue-content(type="1")
+  .transcription-data
+    button.add-btn(type='button')
+      i.fa-solid.fa-plus
+    .progress
+    p#progress
+  .result-list
+    p.result-header Output List
+    ul.result-content
 .progress-status
-	p#progressStatusHeader
-	p#timeEstimator
-	p#latestData
-	p#processingData
-	p#secondProcessingData
-	p#finishedData
-	//- a#startNewUpload.startNewUpload.btn(onclick='(function(){ window.open(window.location.href, \'_blank\').focus(); })();') Start Another Transcription
+  p#progressStatusHeader
+  p#timeEstimator
+  p#latestData
+  p#processingData
+  p#secondProcessingData
+  p#finishedData
+  //- a#startNewUpload.startNewUpload.btn(onclick='(function(){ window.open(window.location.href, \'_blank\').focus(); })();') Start Another Transcription
 
 .download-links.hidden
-	a.btn.downloadLink#srtDownloadLink(href='#')
+  a.btn.downloadLink#srtDownloadLink(href='#')
 
-	a.btn.downloadLink#vttDownloadLink(href='#')
+  a.btn.downloadLink#vttDownloadLink(href='#')
 
-	a.btn.downloadLink#txtDownloadLink(href='#')
+  a.btn.downloadLink#txtDownloadLink(href='#')
 
-	a.btn#refreshButton(onclick='(function(){ window.open(window.location.href, \'_blank\').focus(); })();') Start New Transcription
+  a.btn#refreshButton(onclick='(function(){ window.open(window.location.href, \'_blank\').focus(); })();') Start New Transcription

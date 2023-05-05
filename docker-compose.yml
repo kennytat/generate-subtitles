@@ -10,4 +10,4 @@ services:
       - ./model:/root/.cache/whisper
     container_name: stt
     ports:
-      - 3000:3000
+      - 3100:3100

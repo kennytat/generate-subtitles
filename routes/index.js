@@ -5,16 +5,17 @@ const {
   ytdlp,
   modelsArray,
   languagesArray,
+  translationLanguages,
 } = require("../constants/constants");
 const fs = require("fs-extra");
 const path = require("path");
 const os = require("os");
 const tmpDir = path.join(os.tmpdir(), "vgm-stt");
 const transcriptionDir = path.join(tmpDir, "transcriptions");
-
+const queueData = [{ a: "234", b: "345" }];
 const l = console.log;
 
-const uploadPath = process.env.UPLOAD_PATH || "localhost:3000";
+const uploadPath = process.env.UPLOAD_PATH || "localhost:3100";
 
 const nodeEnv = process.env.NODE_ENV || "development";
 l({ nodeEnv });
@@ -26,7 +27,6 @@ l({ uploadLimitInMB });
 // home page
 router.get("/", function (req, res, next) {
   const isFreeSubtitles = req.hostname === "freesubtitles.ai";
-
   // transcribe frontend page
   res.render("index/index", {
     title: "VGM - STT",
@@ -40,6 +40,7 @@ router.get("/", function (req, res, next) {
     modelsArray,
     languagesArray,
     decrementBySecond,
+    translationLanguages,
   });
 });
 

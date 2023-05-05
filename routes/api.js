@@ -331,7 +331,7 @@ router.post("/post", async function (req, res, next) {
     l(req.body);
     l(req.params);
 
-    const endpointToHit = "http:localhost:3000";
+    const endpointToHit = "http:localhost:3100";
 
     // Create a new form instance
     const form = new FormData();

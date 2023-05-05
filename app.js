@@ -70,7 +70,7 @@ l = console.log;
 //   var args = [].slice.apply(arguments).concat([stack[1].trim()]);
 //   return console.log(console, args);
 // }
-const port = process.env.PORT || "3000";
+const port = process.env.PORT || "3100";
 app.set("port", port);
 
 // create folders if they don't exist yet
