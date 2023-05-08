@@ -16,5 +16,5 @@ conda install python=3.9.16 --yes
 pip3 install --upgrade pip
 pip3 install git+https://github.com/openai/whisper.git
 curl -sL https://deb.nodesource.com/setup_14.x | bash - && apt-get install -y nodejs
-cd ~ && git clone https://github.com/mayeaux/generate-subtitles.git
+cd ~ && git clone --single-branch --branch customise https://github.com/kennytat/generate-subtitles.git
 cd ~/generate-subtitles && npm install
