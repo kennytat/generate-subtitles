@@ -13,14 +13,20 @@ if ! command -v yt-dlp &>/dev/null; then
 	curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
 	chmod a+rx /usr/local/bin/yt-dlp
 fi
-if ! command -v conda &>/dev/null; then
-	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && mkdir -p ~/.conda && bash Miniconda3-latest-Linux-x86_64.sh -b && rm -rf Miniconda3-latest-Linux-x86_64.sh
-	source ~/miniconda3/bin/activate
-	conda init
-	conda install python=3.9.16 --yes
-fi
-pip3 install --upgrade pip
-pip3 install git+https://github.com/openai/whisper.git
+
+## Install whisper python
+# if ! command -v conda &>/dev/null; then
+# 	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && mkdir -p ~/.conda && bash Miniconda3-latest-Linux-x86_64.sh -b && rm -rf Miniconda3-latest-Linux-x86_64.sh
+# 	source ~/miniconda3/bin/activate
+# 	conda init
+# 	conda install python=3.9.16 --yes
+# fia
+# pip3 install --upgrade pip
+# pip3 install git+https://github.com/openai/whisper.git
+
+## Install whisper-rust-binary
+RUN curl -L https://github.com/kennytat/whisper-cli-rs/releases/download/v1.0.5/whisper-linux-x86_64 -o /usr/local/bin/whisper
+RUN chmod a+rx /usr/local/bin/whisper
 
 if ! command -v node &>/dev/null && [[ ! $(node --version) =~ ^"v14" ]]; then
 	curl -sL https://deb.nodesource.com/setup_14.x | bash - && apt-get install -y nodejs

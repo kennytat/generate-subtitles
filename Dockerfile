@@ -1,8 +1,3 @@
-# Dockerfile.Stable
-
-# https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/11.7.1/ubuntu2204/devel/cudnn8/Dockerfile
-# FROM nvidia/cuda:11.7.1-cudnn8-devel-ubuntu22.04
-# https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/11.7.1/ubuntu2204/base/Dockerfile
 FROM nvidia/cuda:11.7.1-base-ubuntu22.04
 ENV DEBIAN_FRONTEND noninteractive
 ENV NODE_VERSION=14
@@ -20,20 +15,23 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
 RUN chmod a+rx /usr/local/bin/yt-dlp
 
-# Insatll anaconda
-RUN wget \
-	https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-	&& mkdir /root/.conda \
-	&& bash Miniconda3-latest-Linux-x86_64.sh -b \
-	&& rm -f Miniconda3-latest-Linux-x86_64.sh
+# # Insatll anaconda
+# RUN wget \
+# 	https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+# 	&& mkdir /root/.conda \
+# 	&& bash Miniconda3-latest-Linux-x86_64.sh -b \
+# 	&& rm -f Miniconda3-latest-Linux-x86_64.sh
 
-ENV PATH="/usr/local/cuda/bin:/root/miniconda3/bin:${PATH}"
-ARG PATH="/root/miniconda3/bin:${PATH}"
+# ENV PATH="/usr/local/cuda/bin:/root/miniconda3/bin:${PATH}"
+# ARG PATH="/root/miniconda3/bin:${PATH}"
 
-## Install whisper from openai
-RUN conda install python=3.9.16 --yes
-RUN pip3 install --upgrade pip
-RUN pip3 install git+https://github.com/openai/whisper.git
+# ## Install whisper from openai
+# RUN conda install python=3.9.16 --yes
+# RUN pip3 install --upgrade pip
+# RUN pip3 install git+https://github.com/openai/whisper.git
+
+RUN curl -L https://github.com/kennytat/whisper-cli-rs/releases/download/v1.0.5/whisper-linux-x86_64 -o /usr/local/bin/whisper
+RUN chmod a+rx /usr/local/bin/whisper
 
 RUN mkdir -p /content/stt
 COPY . /content/stt

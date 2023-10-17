@@ -189,7 +189,10 @@ async function transcribe({
 
       // don't pass a language to use auto-detect
       if (!languageIsAutoDetect) {
-        arguments.push("--language", language);
+        const languageCode = translationLanguages.find(
+          (lang) => lang.name == language
+        ).code;
+        arguments.push("--lang", languageCode);
       }
 
       // set the language for whisper (if undefined with auto-detect and translate off that)
@@ -208,16 +211,17 @@ async function transcribe({
       }
 
       // dont show the text output but show the progress thing
-      arguments.push("--verbose", "False");
+      arguments.push("--verbose");
 
       // folder to save .txt, .vtt and .srt
-      arguments.push(
-        "-o",
-        path.join(transcriptionDir, uploadGeneratedFilename)
-      );
+      // arguments.push( "-o", path.join(transcriptionDir, uploadGeneratedFilename));
 
       l("transcribe arguments");
       l(arguments);
+      l(
+        "transcriptionDir::",
+        path.join(transcriptionDir, uploadGeneratedFilename)
+      );
 
       const whisperProcess = spawn(whisperPath, arguments);
 
@@ -307,16 +311,15 @@ async function transcribe({
           }
 
           const formattedProgress = formatStdErr(data.toString());
-          // l('formattedProgress');
+          // l("formattedProgress");
           // l(formattedProgress);
 
-          const { percentDoneAsNumber, percentDone, speed, timeRemaining } =
-            formattedProgress;
+          const { percentDoneAsNumber, percentDone } = formattedProgress;
 
-          let processingString = "";
-          if (timeRemaining) {
-            processingString = `[${percentDone}] ${timeRemaining.string} Remaining, Speed ${speed}f/s`;
-          }
+          // let processingString = "";
+          // if (timeRemaining) {
+          processingString = `[${percentDone}]`;
+          // }
 
           // TODO: pull into function
           // pass latest data to all the open sockets
@@ -331,8 +334,8 @@ async function transcribe({
                 serverNumber, // on the frontend we'll react different if it's on server 1 or two
                 formattedProgress,
                 percentDone: percentDoneAsNumber,
-                timeRemaining,
-                speed,
+                // timeRemaining,
+                // speed,
               })
             );
           }
@@ -369,6 +372,7 @@ async function transcribe({
               directorySafeFileNameWithoutExtension
             );
 
+            // Move original audio|video file to new location
             await fs.move(
               originalUpload,
               path.join(
@@ -396,25 +400,19 @@ async function transcribe({
             // SOURCE, ORIGINAL
             // TODO: could probably move here instead of copy
             await fs.move(
-              `${originalContainingDir}/${
-                path.parse(uploadFolderFileName).name
-              }.srt`,
+              `${uploadDir}/${path.parse(uploadFolderFileName).name}.srt`,
               transcribedSrtFilePath,
               { overwrite: true }
             );
 
             await fs.move(
-              `${originalContainingDir}/${
-                path.parse(uploadFolderFileName).name
-              }.vtt`,
+              `${uploadDir}/${path.parse(uploadFolderFileName).name}.vtt`,
               transcribedVttFilePath,
               { overwrite: true }
             );
 
             await fs.move(
-              `${originalContainingDir}/${
-                path.parse(uploadFolderFileName).name
-              }.txt`,
+              `${uploadDir}/${path.parse(uploadFolderFileName).name}.txt`,
               transcribedTxtFilePath,
               { overwrite: true }
             );

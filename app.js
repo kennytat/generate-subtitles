@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const os = require("os");
+const { execSync, spawn } = require("node:child_process");
 const favicon = require("serve-favicon");
 const logger = require("morgan");
 const cookieParser = require("cookie-parser");
@@ -76,7 +77,8 @@ app.set("port", port);
 // create folders if they don't exist yet
 const uploadDir = path.join(tmpDir, "uploads");
 const transcriptionDir = path.join(tmpDir, "transcriptions");
-
+execSync(`rm -rf ${uploadDir}`);
+execSync(`rm -rf ${transcriptionDir}`);
 fs.mkdirSync(uploadDir, { recursive: true });
 fs.mkdirSync(transcriptionDir, { recursive: true });
 

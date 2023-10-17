@@ -23,14 +23,15 @@ function buildArguments({ uploadedFilePath, language, model, numberToUse }) {
   arguments.push(uploadedFilePath);
 
   // these don't have to be defined
-  if (language) arguments.push("--language", language);
+  if (language) arguments.push("--lang", language);
+
   if (model) arguments.push("--model", model);
 
   // dont show the text output but show the progress thing
-  arguments.push("--verbose", "False");
+  arguments.push("--verbose");
 
   // folder to save .txt, .vtt and .srt
-  arguments.push("-o", path.join(transcriptionDir, numberToUse));
+  // arguments.push("-o", path.join(transcriptionDir, numberToUse));
 
   l("transcribe arguments");
   l(arguments);
