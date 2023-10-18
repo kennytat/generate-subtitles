@@ -1,13 +1,13 @@
-version: '3.7'
+version: "3.7"
 
 services:
-  vgm:
+  stt:
     build:
       context: .
       dockerfile: Dockerfile
     image: kennytat/generate-subtitles:stable
     volumes:
-      - ./model:/root/.cache/whisper
+      - /mnt/backup/AI/generate-subtitles/model-whisper-ggml:/root/.cache/whisper/models
     container_name: stt
     ports:
       - 3100:3100

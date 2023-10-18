@@ -189,9 +189,7 @@ async function transcribe({
 
       // don't pass a language to use auto-detect
       if (!languageIsAutoDetect) {
-        const languageCode = translationLanguages.find(
-          (lang) => lang.name == language
-        ).code;
+        const languageCode = getLanguageCodeForAllLanguages(language);
         arguments.push("--lang", languageCode);
       }
 
