@@ -7,6 +7,7 @@ include controllers/network-handling
 script.
   l = console.log;
   ce = console.error;
+  let uploadedList = [];
   let queueList = [];
 
   let ytdlp = !{ytdlp || false};
@@ -164,7 +165,12 @@ script.
       processFiles.push(item);
       $('.queue-content').append(`<li id="${item.id}" style="margin: 0 20px;padding: 5px 10px">${item.file.name}</li>`);
     }
+    uploadedList = uploadedList.concat(processFiles)
     queueList = queueList.concat(processFiles);
+    circleProgress.attr({
+      max: uploadedList.length,
+      value: uploadedList.length - queueList.length,
+    });
     for await (const item of processFiles) {
       // Perform action on one file
       processFile(item.file, item.id)
@@ -324,7 +330,6 @@ script.
 
     // once backend is hit
     ajax.addEventListener('load', loadEvent)
-
     // TODO: implement these
     // ajax.addEventListener("abort", abortHandler, false);
     l("item sent to backend::", uploadUrl, formData);
@@ -333,6 +338,7 @@ script.
     ajax.send(formData);
     //- $('#form').hide()
     if(downloadLink) downloadStarted = true;
+
   }
 
   // prompt user to refresh if websocket dies
@@ -380,11 +386,11 @@ script.
     downloadingIsFinished && loadAjax({circleProgress})
 
     // WEBSOCKET DATA COMING FROM THE BACKEND
-    isProcessingInfo && renderProcessingFeedback({data, hitTheBackend});
+    isProcessingInfo && renderProcessingFeedback({data, hitTheBackend, uploadedList, queueList});
 
     sendingQueueInformation && renderQueue({place: data.placeInQueue, log: 'initial queue data'});
 
-    transcriptionIsStarting && renderStartingFeedback({ data, circleProgress });
+    transcriptionIsStarting && renderStartingFeedback({ data, circleProgress, uploadedList, queueList});
 
     isFileDetailsMessage && renderFileDetails(data);
 
@@ -406,6 +412,10 @@ script.
       if (queueList.length > 0) {
         uploadFinished = true;      
       }
+      circleProgress.attr({
+        max: uploadedList.length,
+        value: uploadedList.length - queueList.length,
+      });
       //- websocketConnection.close();
     }
 

@@ -32,21 +32,22 @@ script.
 
     $('#progress').html(`${percentDownloaded}% downloaded`);
     document.title = `${percentDownloaded}% Downloaded - ${fileName}`;
-
-    circleProgress.attr({
-      max: 100,
-      value: Number(percentDownloaded),
-    });
-
-    if (percentDownloaded === 100) {
+    if (typeof percentDownloaded === "number") {
       circleProgress.attr({
         max: 100,
-        value: 0,
+        value: Number(percentDownloaded),
       });
-      //- $('.progress').hide();
-    } else {
-      //- $('.progress').show();
+      if (percentDownloaded === 100) {
+        circleProgress.attr({
+          max: 100,
+          value: 0,
+        });
+        //- $('.progress').hide();
+      } else {
+        //- $('.progress').show();
+      }
     }
+
 
     const estSecondsIsNan = isNaN(estSecondsRemaining);
 
@@ -142,10 +143,10 @@ script.
     //- $('#progress').hide();
     $('#timeEstimator').hide();
     $('#progressStatusHeader').html('Processing..');
-    circleProgress.attr({
-      max: 100,
-      value: 0,
-    });
+    //- circleProgress.attr({
+    //-   max: 100,
+    //-   value: 0,
+    //- });
     $('.progress').show();
   }
 
@@ -179,7 +180,7 @@ script.
 
   let latestProgress, globalTimeRemaining, myUploadStarted = false;
 
-  const renderProcessingFeedback = ({data, hitTheBackend}) => {
+  const renderProcessingFeedback = ({data, hitTheBackend, uploadedList, queueList}) => {
     l('websocket data');
     let loopStarted;
     //- destructure the data object -osb910
@@ -228,10 +229,10 @@ script.
       l('found my data');
       $('#processingData').show();
       // actual process data coming back
-      if (percentDone > 0) {
+      if (typeof percentDone === 'number' && percentDone > 0) {
         circleProgress.attr({
-          max: 100,
-          value: percentDone,
+          max: uploadedList.length,
+          value: uploadedList.length - queueList.length,
         });
 
         //- if (percentDone === 100) {
@@ -273,7 +274,7 @@ script.
     }
   }
 
-  const renderStartingFeedback = ({ data, circleProgress }) => {
+  const renderStartingFeedback = ({ data, circleProgress, uploadedList, queueList }) => {
     inTheQueue = false;
     document.title = `Starting processing..`;
     l('starting data');
@@ -282,14 +283,14 @@ script.
     $('#processingData').hide();
     $('#secondProcessingData').hide();
     myProcessingStarted = true;
-    circleProgress.attr({
-      max: 100,
-      value: 100,
-    });
+    //- circleProgress.attr({
+    //-   max: 100,
+    //-   value: 100,
+    //- });
     $('.progress').show();
     circleProgress.attr({
-      max: 100,
-      value: 0,
+      max: uploadedList.length,
+      value: uploadedList.length - queueList.length,
     });
     // $('#latestData').css("font-size", "20px");
   }

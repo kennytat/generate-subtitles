@@ -54,7 +54,7 @@ const libreTranslateHostPath = process.env.LIBRETRANSLATE;
 
 const isProd = nodeEnvironment === "production";
 
-const whisperPath = which.sync("whisper");
+const whisperPath = which.sync("whisperx");
 
 global.transcriptions = [];
 
@@ -190,7 +190,7 @@ async function transcribe({
       // don't pass a language to use auto-detect
       if (!languageIsAutoDetect) {
         const languageCode = getLanguageCodeForAllLanguages(language);
-        arguments.push("--lang", languageCode);
+        arguments.push("--language", languageCode);
       }
 
       // set the language for whisper (if undefined with auto-detect and translate off that)
@@ -209,10 +209,13 @@ async function transcribe({
       }
 
       // dont show the text output but show the progress thing
-      arguments.push("--verbose");
+      // arguments.push("--verbose");
 
       // folder to save .txt, .vtt and .srt
-      // arguments.push( "-o", path.join(transcriptionDir, uploadGeneratedFilename));
+      arguments.push(
+        "-o",
+        path.join(transcriptionDir, uploadGeneratedFilename)
+      );
 
       l("transcribe arguments");
       l(arguments);
@@ -284,7 +287,6 @@ async function transcribe({
         const currentlyRunningJobs = amountOfRunningJobs();
         const amountInQueue = global.newQueue.length;
         const totalOutstanding = currentlyRunningJobs + amountInQueue;
-
         let outputString = `
          STDERR: ${data},
          Duration: ${uploadDurationInSecondsHumanReadable},
@@ -380,58 +382,67 @@ async function transcribe({
               { overwrite: true }
             );
 
-            // turn this to a loop
-            /** COPY TO BETTER NAME, SRT, VTT, TXT **/
-            const transcribedSrtFilePath = `${originalDirectoryAndNewFileName}.srt`;
-
-            const transcribedVttFilePath = `${originalDirectoryAndNewFileName}.vtt`;
-
-            const transcribedTxtFilePath = `${originalDirectoryAndNewFileName}.txt`;
-
             console.log(
               "logPath2::",
               path.resolve(originalContainingDir),
               path.resolve(uploadFolderFileName),
               path.resolve(originalDirectoryAndNewFileName)
             );
+
+            // turn this to a loop
+            /** COPY TO BETTER NAME, SRT, VTT, TXT, TSV, JSON**/
+            const extensions = ["srt", "vtt", "txt", "tsv", "json"];
+            for (let i = 0; i < extensions.length; i++) {
+              const basename = `${originalDirectoryAndNewFileName}.${extensions[i]}`;
+              await fs.move(
+                `${originalContainingDir}/${
+                  path.parse(uploadFolderFileName).name
+                }.${extensions[i]}`,
+                basename,
+                { overwrite: true }
+              );
+              // convert Serbian text from Cyrillic to Latin
+              if (language === "Serbian") {
+                await convertSerbianCyrillicToLatin(basename);
+              }
+
+              // convert Chinese characters to Simplified
+              if (language === "Chinese") {
+                await convertChineseTraditionalToSimplified(basename);
+              }
+            }
+            // const transcribedSrtFilePath = `${originalDirectoryAndNewFileName}.srt`;
+
+            // const transcribedVttFilePath = `${originalDirectoryAndNewFileName}.vtt`;
+
+            // const transcribedTxtFilePath = `${originalDirectoryAndNewFileName}.txt`;
+
             // copy srt with the original filename
             // SOURCE, ORIGINAL
             // TODO: could probably move here instead of copy
-            await fs.move(
-              `${uploadDir}/${path.parse(uploadFolderFileName).name}.srt`,
-              transcribedSrtFilePath,
-              { overwrite: true }
-            );
+            // await fs.move(
+            //   `${originalContainingDir}/${
+            //     path.parse(uploadFolderFileName).name
+            //   }.srt`,
+            //   transcribedSrtFilePath,
+            //   { overwrite: true }
+            // );
 
-            await fs.move(
-              `${uploadDir}/${path.parse(uploadFolderFileName).name}.vtt`,
-              transcribedVttFilePath,
-              { overwrite: true }
-            );
+            // await fs.move(
+            //   `${originalContainingDir}/${
+            //     path.parse(uploadFolderFileName).name
+            //   }.vtt`,
+            //   transcribedVttFilePath,
+            //   { overwrite: true }
+            // );
 
-            await fs.move(
-              `${uploadDir}/${path.parse(uploadFolderFileName).name}.txt`,
-              transcribedTxtFilePath,
-              { overwrite: true }
-            );
-
-            // convert Serbian text from Cyrillic to Latin
-            if (language === "Serbian") {
-              await convertSerbianCyrillicToLatin({
-                transcribedSrtFilePath,
-                transcribedVttFilePath,
-                transcribedTxtFilePath,
-              });
-            }
-
-            // convert Chinese characters to Simplified
-            if (language === "Chinese") {
-              await convertChineseTraditionalToSimplified({
-                transcribedSrtFilePath,
-                transcribedVttFilePath,
-                transcribedTxtFilePath,
-              });
-            }
+            // await fs.move(
+            //   `${originalContainingDir}/${
+            //     path.parse(uploadFolderFileName).name
+            //   }.txt`,
+            //   transcribedTxtFilePath,
+            //   { overwrite: true }
+            // );
 
             updateQueueItemStatus(websocketNumber, "completed");
 
