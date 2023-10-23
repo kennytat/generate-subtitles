@@ -12,7 +12,7 @@ const { buildArguments } = require("./transcribing");
 
 l = console.log;
 
-const whisperPath = which.sync("whisper");
+const whisperPath = which.sync("whisperx");
 
 async function transcribe({
   language,
