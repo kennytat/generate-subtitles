@@ -197,7 +197,8 @@ async function transcribe({
       if (model) {
         arguments.push("--model", model);
       }
-
+      // arguments.push("--batch_size", "4");
+      arguments.push("--no_align");
       // alternate
       // todo: do an 'express' queue and a 'large files' queue
       if (isProd && multipleGpusEnabled) {

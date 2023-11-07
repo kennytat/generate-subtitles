@@ -26,6 +26,8 @@ function buildArguments({ uploadedFilePath, language, model, numberToUse }) {
   if (language) arguments.push("--language", language);
 
   if (model) arguments.push("--model", model);
+  // arguments.push("--batch_size", "4");
+  arguments.push("--no_align");
 
   // dont show the text output but show the progress thing
   // arguments.push("--verbose");
